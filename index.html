@@ -1,417 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Tra cứu tọa độ thửa đất VN-2000 • Google Maps</title>
-<meta name="description" content="Tra cứu tọa độ VN-2000, xem vị trí Google Maps, vẽ sơ đồ ranh giới và xuất KML.">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.15.0/proj4.js" referrerpolicy="no-referrer"></script>
+<meta name="theme-color" content="#831b31">
+<meta name="description" content="Chụp ảnh bảng tọa độ VN-2000, tự đọc một điểm X Y và xem vị trí Google Maps trên điện thoại.">
+<title>VN-2000 • Chụp ảnh tra vị trí | Agribank Quỳnh Phụ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.15.0/proj4.js" defer></script>
 <style>
-:root { color-scheme:light; --ink:#1d2838; --muted:#697788; --red:#a52035; --dark:#76142a; --gold:#dab36a; --line:#e5e8ec; --bg:#f3f5f8; --shadow:0 10px 30px rgba(18,31,44,.07); }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:14px}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.45;cursor:not-allowed}
-a{color:var(--red)}
-.header{background:linear-gradient(112deg,#761329,#a8273d 72%,#c05254);color:white;position:relative;overflow:hidden}
-.header:after{content:"";position:absolute;right:-110px;top:-150px;width:340px;height:340px;border-radius:50%;border:40px solid rgba(255,255,255,.045)}
-.header-in{max-width:1480px;margin:auto;padding:22px 26px;display:flex;gap:16px;align-items:center;position:relative;z-index:1}
-.logo{width:51px;height:51px;border-radius:15px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);display:grid;place-items:center;font-size:26px}
-h1{font-size:24px;line-height:1.25;letter-spacing:-.6px;margin:0 0 3px;font-weight:800}.header p{margin:0;color:#f8dce2;font-size:13px}
-.wrap{max-width:1480px;margin:0 auto;padding:20px 22px 28px;display:grid;grid-template-columns:395px minmax(0,1fr);align-items:start;gap:20px}
-.sidebar{display:grid;gap:16px}.panel{background:white;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px;padding:19px}
-.panel-head{display:flex;align-items:center;gap:9px;margin-bottom:14px}.step{width:27px;height:27px;display:grid;place-items:center;border-radius:8px;background:#fbeced;color:var(--red);font-weight:800}.panel h2{margin:0;font-size:16px;letter-spacing:-.2px}
-label{display:block;font-size:12px;font-weight:760;margin:0 0 7px;color:#334356}input,textarea,select{background:white;color:#17293b;width:100%;min-width:0;border:1px solid #d5dce4;border-radius:10px;padding:11px 12px;outline:none;transition:border-color .15s,box-shadow .15s}
-input:focus,textarea:focus,select:focus{border-color:#bf7a88;box-shadow:0 0 0 3px #a5203516}
-input{font-variant-numeric:tabular-nums}.field{margin-bottom:13px}.muted{font-size:12px;color:var(--muted);line-height:1.55;margin:6px 0 0}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-select{appearance:auto}textarea{resize:vertical;line-height:1.6;min-height:138px;white-space:pre;tab-size:4}
-.primary,.secondary,.ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:11px 13px;font-weight:750;text-decoration:none;border:1px solid transparent;transition:filter .16s, transform .16s;min-height:43px}
-.primary{background:var(--red);color:white}.primary:hover{filter:brightness(.94)}.secondary{color:var(--red);border-color:#e6c6ce;background:#fff6f7}.secondary:hover{background:#ffedef}.ghost{color:#394a60;background:#f5f7f9;border-color:#e5eaed}.ghost:hover{background:#edf1f4}
-.full{width:100%}.buttonrow{display:grid;grid-template-columns:1fr 1fr;gap:9px}.chip{font-size:11px;border-radius:100px;padding:4px 9px;background:#f1f3f6;color:#657183;font-weight:700}
-.details{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}.details h2{font-size:15px}details summary{cursor:pointer;font-weight:700;color:#5b2e39;font-size:12px}details p{font-size:12px;line-height:1.6;color:var(--muted)}
-.note{background:#fff8e9;border:1px solid #f5e1b7;border-radius:12px;padding:12px 13px;font-size:12px;line-height:1.6;color:#795b27;margin-top:12px}
-.note strong{color:#67461b}
-.workspace{min-width:0;display:grid;gap:15px}.map-panel{background:white;border-radius:16px;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
-.map-top{display:flex;gap:14px;justify-content:space-between;align-items:center;padding:15px 18px}.map-title{font-size:16px;font-weight:800;margin:0 0 3px}.sub{font-size:12px;color:var(--muted)}.map-tabs{display:flex;gap:5px;border-radius:9px;background:#f3f5f7;padding:4px}.tab{border:none;background:transparent;border-radius:7px;padding:8px 11px;font-weight:750;font-size:12px;color:#738091;white-space:nowrap}.tab.on{background:#fff;color:#a52035;box-shadow:0 1px 5px #10203017}
-#map{display:none}.map-wrap{position:relative;background:#f8f9fb;min-height:420px}#googleFrame{height:min(62vh,610px);min-height:420px;width:100%;border:0;display:none;background:#f8f9fb}
-.map-empty{position:absolute;inset:0;display:grid;place-items:center;z-index:2;background:linear-gradient(145deg,#fffaf9,#f1f4f7);color:#5d6979;padding:25px;text-align:center;font-size:14px;line-height:1.7}.empty-graphic{font-size:44px;margin-bottom:12px}.map-empty strong{display:block;font-size:18px;color:#293b50;margin-bottom:5px}.frame-hint{padding:10px 16px;color:#727f8c;font-size:12px;line-height:1.55;border-top:1px solid #ebedf1}.parcel-panel{display:none;background:white;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}.parcel-intro{padding:16px 18px 4px}.parcel-intro h2{font-size:16px;margin:0 0 6px}.parcel-intro p{font-size:12px;color:var(--muted);line-height:1.6;margin:0}.diagram-frame{padding:12px 18px 20px}.diagram-frame svg{display:block;width:100%;height:auto;max-height:450px;background:linear-gradient(150deg,#fff,#faf6f5);border:1px dashed #efd6db;border-radius:12px}.configuration-hint{margin-top:10px;font-size:12px;color:#815d24;background:#fff8eb;border-radius:8px;padding:9px 11px}.map-tag{padding:5px 10px;font-size:12px;font-weight:750;border-radius:20px;background:#fbebee;color:var(--red);white-space:nowrap}
-.map-bottom{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}.link-actions{display:flex;gap:8px;flex-wrap:wrap}.link-actions button{font-size:12px;padding:9px 12px;min-height:36px}
-.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;box-shadow:var(--shadow);min-width:0}.stat .key{font-size:12px;font-weight:700;color:#778392;margin-bottom:8px}.stat .number{font-size:19px;line-height:1.25;font-weight:850;color:#27364a;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.stat .number.emph{color:var(--red)}.stat .small{font-size:11px;color:#95a0a9;margin-top:4px}
-.results{padding:17px 18px}.results-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.results h2{font-size:15px;margin:0}.table-outer{overflow:auto;max-height:290px}table{border-collapse:collapse;width:100%;min-width:535px;font-size:12px;font-variant-numeric:tabular-nums}th,td{padding:10px 11px;border-bottom:1px solid #edf0f2;text-align:left;white-space:nowrap}th{background:#f8f9fb;color:#57677b;position:sticky;top:0;font-size:11px}tbody tr:hover{background:#fff6f6}.emptyresult{text-align:center;padding:22px;color:#929eac;font-size:12px}
-#toast{position:fixed;bottom:22px;right:22px;max-width:420px;background:#243142;color:white;padding:13px 17px;border-radius:11px;z-index:2000;box-shadow:0 9px 28px #10203050;font-size:13px;display:none;line-height:1.55}
-#toast.error{background:#a52035}
-.legend{display:flex;align-items:center;gap:7px;color:#697788;font-size:11px}.dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:#e5354e;border:2px solid white;box-shadow:0 0 0 1px #a52035}
-.footer{max-width:1480px;margin:0 auto 22px;padding:0 22px;font-size:12px;color:#8b98a6;line-height:1.6}
-@media(max-width:1080px){.wrap{grid-template-columns:350px minmax(0,1fr);gap:14px;padding:14px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.map-top{flex-direction:column;align-items:start}}
-@media(max-width:730px){.wrap{display:flex;flex-direction:column;gap:14px;padding:13px}.sidebar,.workspace{width:100%}.header-in{padding:18px 16px}.header h1{font-size:20px}.logo{width:42px;height:42px;font-size:23px}.panel{padding:16px}.map-top{padding:13px;gap:11px}.map-tabs{width:100%}.tab{flex:1}.map-bottom{padding:13px}#googleFrame{height:430px;min-height:430px}.map-wrap{min-height:430px}.stats{gap:9px}.stat{padding:13px}.stat .number{font-size:16px}.footer{padding:0 15px}}
-
-/* Camera/OCR mobile workflow */
-.photo-tools{background:linear-gradient(130deg,#fff9f3,#fff5f6);border:1px solid #f2d9cc;border-radius:13px;padding:13px;margin-bottom:16px}
-.photo-title{font-size:14px;font-weight:850;color:#8d1931;margin-bottom:5px}
-.photo-tools p{color:#775c60;font-size:12px;line-height:1.55;margin:5px 0 11px}
-.photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.photo-actions label{display:flex;align-items:center;justify-content:center;margin:0;font-size:13px;min-height:46px;text-align:center;cursor:pointer}
-.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-#ocrProgressWrap{display:none;margin-top:12px}
-#ocrProgress{width:100%;height:8px;accent-color:var(--red);border-radius:20px}
-#ocrStatus{font-size:12px;color:#765e66;line-height:1.5;margin:5px 0}
-#ocrPreview{display:none;max-height:230px;max-width:100%;object-fit:contain;border:1px solid #e8d7d9;border-radius:9px;background:white;margin:12px auto 0}
-#ocrReview{display:none;margin-top:12px;padding-top:11px;border-top:1px solid #edd7d9}
-#ocrReview h3{font-size:13px;margin:0 0 7px;color:#812238}
-#ocrReview textarea{min-height:105px;background:white;font-size:13px}
-#ocrReview .muted{margin:8px 0}
-.photo-help{font-size:11px!important;margin-bottom:0!important}
-#ocrNotice{font-size:12px;line-height:1.5;color:#965922;font-weight:650;margin-top:7px;white-space:pre-line}
-.link-actions button#streetView{border-color:#d0d9ea;color:#294d7c;background:#f2f7ff}
-.link-actions button#streetView:hover{background:#e8f1ff}
-@media(max-width:730px){.photo-actions{grid-template-columns:1fr 1fr}.photo-actions label{font-size:12px;padding:9px 6px}.link-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}.link-actions button{font-size:11.5px;padding:10px 7px}}
-
+:root{--red:#982037;--red2:#741429;--gold:#eacb89;--text:#202a38;--sub:#687586;--line:#e6eaf0;--bg:#f5f6f9;--safe:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;-webkit-tap-highlight-color:transparent}button,input,textarea,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.45;cursor:not-allowed}a{color:inherit}
+.top{background:linear-gradient(125deg,#6c1024,#9e233a 70%,#ac3349);padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 25px;color:white}
+.topin{max-width:740px;margin:auto;display:flex;align-items:center;gap:12px}.brandicon{width:47px;height:47px;border-radius:14px;background:#ffffff24;border:1px solid #ffffff48;display:grid;place-items:center;font-size:24px;flex:none}.top h1{font-size:19px;letter-spacing:-.4px;line-height:1.28;margin:0;font-weight:850}.top p{color:#ffe2e4;font-size:12px;line-height:1.5;margin:5px 0 0}
+main{max-width:740px;margin:-10px auto 25px;padding:0 11px;position:relative;display:grid;gap:13px}
+.card{background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:0 5px 22px #1f2c4010;overflow:hidden}.pad{padding:18px}.cardhead{display:flex;gap:9px;align-items:center;margin-bottom:10px}.tag{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;font-size:13px;font-weight:850;background:#fff0f2;color:var(--red);flex:none}h2{margin:0;font-size:17px;line-height:1.3;letter-spacing:-.25px}.intro{font-size:13px;color:var(--sub);margin:4px 0 17px}
+.bigbtn,.btn{border:0;border-radius:13px;min-height:49px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:780;padding:10px 14px;transition:filter .15s}.bigbtn{min-height:56px;font-size:16px}.red{background:var(--red);color:white}.red:hover{filter:brightness(.95)}.pale{color:var(--red);background:#fff1f4;border:1px solid #f1cfd5}.gray{background:#f2f4f7;color:#3b485b;border:1px solid #e4e8ed}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.full{width:100%}.fileinput{position:absolute;inline-size:1px;block-size:1px;opacity:0;overflow:hidden;pointer-events:none}.capture{display:flex!important;text-align:center;cursor:pointer}
+.hero{border:1px solid #f3d9de;background:linear-gradient(155deg,#fff6f7,#fff)}.photohead{font-size:14px;font-weight:850;color:#8d2136;display:flex;align-items:center;gap:8px;margin-bottom:5px}.micro{font-size:12px;color:var(--sub);margin:10px 0 0;line-height:1.6}.sepline{border:0;border-top:1px solid var(--line);margin:18px 0 14px}label.fieldlabel{font-size:12px;color:#445367;font-weight:780;display:block;margin:0 0 7px}input[type=text],textarea,select{width:100%;min-width:0;background:white;border:1px solid #d7dde5;border-radius:11px;padding:12px 13px;color:#1e2938;outline:0;font-variant-numeric:tabular-nums;font-size:16px}input:focus,textarea:focus,select:focus{border-color:#ac6070;box-shadow:0 0 0 3px #a5203517}textarea{resize:vertical;min-height:128px;line-height:1.6;font-size:14px}
+#preview{display:none;width:100%;max-height:235px;object-fit:contain;background:white;border:1px solid var(--line);border-radius:10px;margin-top:13px}#busy{display:none;padding-top:14px}progress{width:100%;height:9px;accent-color:var(--red)}.busyline{display:flex;justify-content:space-between;gap:8px;color:#58697b;font-size:12px;margin-bottom:7px}.status{margin-top:5px;font-size:12px;color:#725661;line-height:1.5}.notice{border-radius:11px;padding:11px 12px;font-size:12px;line-height:1.55;margin-top:12px;background:#fff8ec;border:1px solid #f3e0b8;color:#795c2c;display:none}.notice.good{color:#216443;background:#eff9f3;border-color:#c6e8d1}
+#ocrTools{display:none;margin-top:13px;padding-top:13px;border-top:1px solid var(--line)}.detected{font-size:13px;font-weight:830;margin-bottom:8px;color:#2a3949}.selectrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.selectrow .btn{min-height:46px;font-size:12px}details{margin-top:13px}details>summary{font-size:13px;color:#7b2f42;font-weight:760;cursor:pointer;padding:6px 0;list-style-position:inside}details p{color:var(--sub);font-size:12px;line-height:1.6;margin:8px 0}.ocrtext{margin-top:7px}
+.maphead{padding:17px 17px 12px}.maphead h2{font-size:17px}.maphead .subtitle{font-size:12px;color:var(--sub);margin-top:5px}.mapframe{height:310px;background:#eef1f5;position:relative}.mapframe iframe{width:100%;height:100%;border:none;display:none;background:#f7f8fa}.mapplaceholder{position:absolute;inset:0;background:linear-gradient(148deg,#fbfbfd,#eef1f6);display:grid;place-items:center;text-align:center;padding:28px;color:#667386}.mapplaceholder .emoji{font-size:38px}.mapplaceholder strong{display:block;font-size:15px;color:#38475c;margin:6px 0}.mapplaceholder p{font-size:12px;margin:4px auto;max-width:280px}
+.coords{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px 0}.coordbox{background:#f7f8fa;border:1px solid #eceef2;padding:10px 12px;border-radius:11px;min-width:0}.coordbox span{display:block;font-size:11px;color:#768395;margin-bottom:3px}.coordbox b{display:block;font-size:14px;line-height:1.4;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.coordbox b.hi{color:var(--red)}.pinpoint{font-size:12px;color:#536173;padding:10px 15px 0;display:none;overflow-wrap:anywhere}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px 16px}.actions button{min-height:47px;font-size:12.5px;padding:9px 6px}.actions .wide{grid-column:1/-1;min-height:49px;font-size:15px}.hint{border-top:1px solid #edf0f3;padding:9px 14px;color:#778393;font-size:11px;line-height:1.55}
+.secondary-card{padding:16px 18px}.secondary-card summary{padding:0;font-size:15px;color:#29384a;list-style:none}.secondary-card summary:after{content:'⌄';float:right;color:#a52035;font-size:20px;line-height:1}.secondary-card[open] summary:after{content:'⌃'}.secondary-card .inside{margin-top:15px}.line-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}.kv{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.kv strong{color:var(--red);font-variant-numeric:tabular-nums}.chart{margin:14px 0;background:#fffaf9;border:1px solid #f1e0e4;border-radius:12px;overflow:hidden}.chart svg{width:100%;height:auto;display:block}
+footer{max-width:740px;margin:15px auto 25px;padding:0 18px calc(10px + var(--safe));color:#7a8796;font-size:11px;line-height:1.7}.fixedinfo{border-left:3px solid #d6af66;padding-left:10px;margin-top:10px}
+#toast{position:fixed;z-index:100;left:12px;right:12px;bottom:calc(12px + var(--safe));max-width:690px;margin:auto;background:#243344;color:white;border-radius:13px;padding:13px 15px;font-size:13px;line-height:1.5;display:none;box-shadow:0 12px 32px #2534444b}#toast.err{background:#9c2136}
+@media(min-width:650px){main{padding:0 18px;gap:16px}.pad{padding:23px}.mapframe{height:430px}.top h1{font-size:23px}.top{padding-bottom:32px}}
+@media(max-width:360px){.top h1{font-size:17px}.top p{font-size:11px}.bigbtn{font-size:14px}.grid2{gap:7px}.grid2 .btn{font-size:12px;padding:9px 6px}.coordbox b{font-size:12px}}
 </style>
 </head>
 <body>
-<header class="header"><div class="header-in"><div class="logo">📍</div><div><h1>Tra cứu tọa độ thửa đất VN-2000</h1><p>Agribank Chi nhánh Quỳnh Phụ - Nguyễn Phúc Duy - 0966.555.692</p></div></div></header>
-<main class="wrap">
-<section class="sidebar" aria-label="Nhập tọa độ thửa đất">
-  <div class="panel">
-    <div class="panel-head"><span class="step">1</span><h2>Tra cứu nhanh một tọa độ</h2></div>
-    <div class="photo-tools" id="photoPanel">
-      <div class="photo-title">📷 Chụp ảnh bảng tọa độ, tự tìm thửa đất</div>
-      <p>Chụp rõ bảng X–Y trong sổ hoặc bản vẽ. Hệ thống sẽ tự đọc tọa độ, ghim vị trí và thử vẽ ranh giới nếu có nhiều đỉnh.</p>
-      <div class="photo-actions">
-        <label class="primary" for="cameraInput">📸 Chụp bằng điện thoại</label>
-        <label class="secondary" for="galleryInput">🖼 Chọn ảnh có sẵn</label>
-      </div>
-      <input id="cameraInput" class="visually-hidden" type="file" accept="image/*" capture="environment" aria-label="Chụp bảng tọa độ">
-      <input id="galleryInput" class="visually-hidden" type="file" accept="image/*" aria-label="Chọn ảnh bảng tọa độ">
-      <img id="ocrPreview" alt="Ảnh bảng tọa độ đã chọn">
-      <div id="ocrProgressWrap" aria-live="polite"><progress id="ocrProgress" max="100" value="0"></progress><div id="ocrStatus">Đang đọc ảnh…</div></div>
-      <div id="ocrReview">
-        <h3 id="ocrReviewTitle">Tọa độ đọc được từ ảnh</h3>
-        <label for="ocrExtracted">Kiểm tra hoặc chỉnh lại những số bị nhận dạng sai</label>
-        <textarea id="ocrExtracted" spellcheck="false" rows="6" placeholder="1353007.69 593462.21"></textarea>
-        <div id="ocrNotice"></div>
-        <div class="buttonrow" style="margin-top:10px"><button id="ocrApply" class="primary">✓ Xem tọa độ đã đọc</button><button id="ocrRetry" class="ghost">↻ Đọc lại ảnh</button></div>
-      </div>
-      <p class="photo-help">Cần Internet để tải bộ nhận dạng chữ số lần đầu. Ảnh được xử lý trong trình duyệt, không gửi tới máy chủ nhận dạng. Khi ảnh quá mờ, hãy chụp lại hoặc chỉnh số tại ô kết quả.</p>
-    </div>
-    <div class="field"><label for="coord">Nhập X, Y như trên bản vẽ VN-2000</label><input id="coord" value="1353007.69, 593462.21" type="text" spellcheck="false" placeholder="1353007.69, 593462.21" autocomplete="off"><p class="muted"><b>X</b> = tọa độ Bắc (khoảng 1–2 triệu); <b>Y</b> = tọa độ Đông (thường khoảng 500.000). Có thể dán cả cặp rồi nhấn Enter.</p></div>
-    <button class="primary full" id="findBtn">📍 Xem vị trí trên bản đồ</button><p class="muted">Nếu chưa chọn hệ tọa độ, mở mục 3 bên dưới để thiết lập một lần trước khi tra cứu.</p>
-  </div>
-  <div class="panel">
-    <div class="details"><div class="panel-head" style="margin-bottom:0"><span class="step">2</span><h2>Vẽ ranh giới thửa đất</h2></div><span class="chip">9 đỉnh mẫu</span></div>
-    <div class="field"><label for="vertices">Mỗi dòng một cặp X Y, theo thứ tự đi quanh thửa</label><textarea id="vertices" spellcheck="false">1353007.69 593462.21
-1353015.95 593475.00
-1353007.68 593478.50
-1352993.63 593484.44
-1352988.72 593486.52
-1352986.60 593487.42
-1352980.61 593473.67
-1352985.22 593471.72
-1352999.26 593465.78</textarea><p class="muted">Đã nhập 9 đỉnh từ ảnh bạn cung cấp. Hệ thống sẽ tự nối đỉnh cuối với đỉnh đầu tiên.</p></div>
-    <div class="buttonrow"><button class="primary" id="drawBtn">▱ Vẽ thửa đất</button><button class="ghost" id="clearBtn">↺ Xóa hình</button></div>
-    <details style="margin-top:15px"><summary>Hướng dẫn dán bảng có STT, X, Y, chiều dài cạnh</summary><p>Có thể dán từng dòng dạng <code>1. 1353007.69 593462.21 15.23</code>, hoặc từ Excel (có cột số thứ tự). Chương trình lọc hai tọa độ phù hợp và bỏ qua chiều dài cạnh.</p></details>
-  </div>
-  <div class="panel">
-    <div class="panel-head"><span class="step">3</span><h2>Thiết lập hệ tọa độ</h2></div>
-    <div class="field"><label for="province">Tỉnh/thành theo hồ sơ địa chính</label><select id="province"><option value="">— Chọn tỉnh/thành hoặc kinh tuyến trục —</option></select><p class="muted">Đối với sổ/bản vẽ cũ, hãy chọn địa danh <b>trước sáp nhập</b>, không tự động dùng tỉnh mới.</p></div>
-    <div class="form-row"><div class="field"><label for="meridian">Kinh tuyến trục (°)</label><input id="meridian" inputmode="decimal" type="number" min="100" max="115" step="0.25" placeholder="Ví dụ: 108.25" autocomplete="off"></div><div class="field"><label for="zone">Múi chiếu</label><select id="zone"><option value="3">3° • k = 0,9999</option><option value="6">6° • k = 0,9996</option></select></div></div>
-    <div class="note"><strong>⚠️ Bắt buộc đúng kinh tuyến trục.</strong> Hai tọa độ X, Y đơn lẻ không xác định được vị trí duy nhất. Kiểm tra trên hồ sơ; nếu chưa có, hỏi đơn vị trích đo. Cấu hình được ghi nhớ trên trình duyệt này.</div>
-  </div>
+<header class="top"><div class="topin"><div class="brandicon" aria-hidden="true">📍</div><div><h1>TRA CỨU VỊ TRÍ THỬA ĐẤT</h1><p>Agribank Chi nhánh Quỳnh Phụ<br>Nguyễn Phúc Duy · 0966.555.692</p></div></div></header>
+<main>
+<section class="card hero" id="quick"><div class="pad">
+ <div class="cardhead"><span class="tag">1</span><h2>Tra cứu nhanh tọa độ</h2></div>
+ <div class="photohead">📸 Chụp bảng X – Y để tìm vị trí</div>
+ <p class="intro">Chụp ảnh bảng tọa độ trên giấy. Ứng dụng tự lấy <b>một điểm X – Y</b> nhận dạng được và ghim ngay lên Google Maps bên dưới.</p>
+ <label class="bigbtn red full capture" for="camera">📷 Chụp ảnh tọa độ</label>
+ <input id="camera" class="fileinput" type="file" accept="image/*" capture="environment">
+ <div class="grid2" style="margin-top:9px"><label class="btn pale capture" for="gallery">🖼 Chọn ảnh có sẵn</label><button class="btn gray" id="retry" disabled>↻ Đọc lại ảnh</button></div>
+ <input id="gallery" class="fileinput" type="file" accept="image/*">
+ <img id="preview" alt="Ảnh bảng tọa độ bạn đã chọn">
+ <div id="busy" aria-live="polite"><div class="busyline"><strong id="busyLabel">Đang đọc tọa độ…</strong><span id="progressNumber">0%</span></div><progress id="progress" value="0" max="100"></progress><div class="status" id="statusText">Đang chuẩn bị ảnh…</div></div>
+ <div id="notice" class="notice" aria-live="polite"></div>
+ <div id="ocrTools"><div class="detected" id="ocrCount">Đã nhận dạng tọa độ</div><label class="fieldlabel" for="pointPick">Chọn điểm khác trong ảnh (nếu muốn)</label><div class="selectrow"><select id="pointPick" aria-label="Chọn một tọa độ từ ảnh"></select><button class="btn pale" id="pickGo">📍 Xem điểm</button></div><details><summary>✏️ Kiểm tra / sửa tọa độ OCR</summary><textarea class="ocrtext" id="ocrText" spellcheck="false" aria-label="Tọa độ đọc từ ảnh"></textarea><p>Nhập mỗi dòng một cặp X, Y; có thể chỉnh khi ảnh không rõ.</p><button class="btn gray full" id="fixOcr">Cập nhật tọa độ đã sửa</button></details></div>
+ <hr class="sepline"><label class="fieldlabel" for="manual">Hoặc nhập tọa độ bằng tay</label><input type="text" id="manual" value="1353007.69, 593462.21" autocomplete="off" spellcheck="false" inputmode="decimal" placeholder="X, Y (ví dụ: 1353007.69, 593462.21)"><button class="btn gray full" style="margin-top:9px" id="manualGo">📍 Tra cứu tọa độ vừa nhập</button>
+ <p class="micro">Ảnh và tọa độ được xử lý trực tiếp trong trình duyệt. Cần Internet để tải bộ nhận dạng ảnh và xem Google Maps.</p>
+</div></section>
+<section class="card" id="googleResult"><div class="maphead"><div class="cardhead" style="margin-bottom:0"><span class="tag">2</span><h2>Vị trí trên Google Maps</h2></div><div class="subtitle" id="mapStatus">Chụp ảnh hoặc nhập X – Y để hiện vị trí tại đây.</div></div>
+<div class="mapframe"><iframe id="map" title="Google Maps vị trí tọa độ VN-2000" referrerpolicy="no-referrer-when-downgrade" loading="eager" allowfullscreen></iframe><div class="mapplaceholder" id="mapPlaceholder"><div><div class="emoji">🗺️</div><strong>Sẵn sàng định vị thửa đất</strong><p>Chỉ cần chụp ảnh bảng tọa độ để xem vị trí ngay trên bản đồ.</p></div></div></div>
+<div class="pinpoint" id="pinpoint"></div>
+<div class="coords"><div class="coordbox"><span>Vĩ độ GPS</span><b id="lat">—</b></div><div class="coordbox"><span>Kinh độ GPS</span><b class="hi" id="lng">—</b></div></div>
+<div class="actions"><button class="btn red wide" id="openMap" disabled>↗ MỞ TRÊN GOOGLE MAPS</button><button class="btn pale" id="openStreet" disabled>👁 Xem phố</button><button class="btn gray" id="copyGps" disabled>⧉ Sao chép GPS</button></div>
+<div class="hint">Nếu ảnh bản đồ không hiện, chọn “Mở trên Google Maps”. Chế độ Xem phố chỉ hoạt động nơi Google có dữ liệu Street View.</div>
 </section>
-<section class="workspace">
-  <div class="map-panel">
-    <div class="map-top"><div><h2 class="map-title">📍 Vị trí trên Google Maps</h2><div class="sub" id="mapDescription">Nhập tọa độ và chọn hệ tọa độ để xem vị trí.</div></div><span class="map-tag">Google Maps</span></div>
-    <div class="map-wrap"><iframe id="googleFrame" title="Google Maps hiển thị vị trí thửa đất" referrerpolicy="no-referrer-when-downgrade" loading="eager" allowfullscreen></iframe><div id="mapEmpty" class="map-empty"><div><div class="empty-graphic">📌</div><strong>Chưa có tọa độ để hiển thị</strong>Nhập tọa độ ở mục 1 hoặc vẽ ranh giới ở mục 2.<br>Chọn kinh tuyến trục tại mục 3 nếu chưa thiết lập.</div></div></div>
-    <div class="frame-hint">Google Maps hiển thị vị trí ghim. Bấm <b>Xem phố trên Maps</b> để yêu cầu mở Street View tại ảnh toàn cảnh gần nhất (nếu khu vực có ảnh). Không cần Google Maps API key.</div>
-    <div class="map-bottom"><div class="legend"><i class="dot"></i><span>Vị trí được quy đổi từ tọa độ VN-2000</span></div><div class="link-actions"><button class="secondary" id="openGoogle" disabled>↗ Mở Google Maps</button><button class="secondary" id="streetView" disabled>👁 Xem phố trên Maps</button><button class="ghost" id="copyGPS" disabled>⧉ Sao chép GPS</button><button class="ghost" id="exportKml" disabled>⬇ Xuất KML</button></div></div>
-  </div>
-  <div class="parcel-panel" id="parcelView"><div class="parcel-intro"><h2>📐 Sơ đồ ranh giới thửa đất</h2><p>Đường bao nối các đỉnh theo tọa độ bạn nhập, đúng tỷ lệ tương đối. Đây là sơ đồ thửa đất, không phải lớp ảnh vệ tinh. Để đặt ranh giới lên nền bản đồ, xuất KML và mở bằng Google Earth hoặc nhập vào Google My Maps.</p></div><div class="diagram-frame"><svg id="parcelSvg" viewBox="0 0 720 440" role="img" aria-label="Hình dạng ranh giới thửa đất theo tọa độ"></svg></div></div>
-  <div class="stats">
-    <div class="stat"><div class="key">VĨ ĐỘ • GPS WGS84</div><div id="latitude" class="number">—</div><div class="small">Độ thập phân</div></div>
-    <div class="stat"><div class="key">KINH ĐỘ • GPS WGS84</div><div id="longitude" class="number">—</div><div class="small">Độ thập phân</div></div>
-    <div class="stat"><div class="key">DIỆN TÍCH HÌNH CHIẾU</div><div id="area" class="number emph">—</div><div class="small" id="areaHint">Chỉ tính khi vẽ ≥ 3 đỉnh</div></div>
-    <div class="stat"><div class="key">CHU VI HÌNH CHIẾU</div><div id="perimeter" class="number">—</div><div class="small" id="perimeterHint">Tính từ tọa độ VN-2000</div></div>
-  </div>
-  <div class="map-panel results"><div class="results-head"><h2>Danh sách tọa độ đã chuyển đổi</h2><span class="chip" id="count">0 điểm</span></div><div class="table-outer"><table><thead><tr><th>Đỉnh</th><th>VN-2000 X (m)</th><th>VN-2000 Y (m)</th><th>GPS vĩ độ</th><th>GPS kinh độ</th><th>Cạnh đến đỉnh sau</th></tr></thead><tbody id="tableBody"><tr><td class="emptyresult" colspan="6">Chưa có dữ liệu. Bấm Xem vị trí hoặc Vẽ thửa đất.</td></tr></tbody></table></div></div>
-</section>
+<details class="card secondary-card" id="boundary"><summary>▱ Vẽ ranh giới thửa đất (tùy chọn)</summary><div class="inside"><p class="micro">Sau khi chụp ảnh, các điểm đọc được sẽ tự điền bên dưới; mặc định chỉ ghim <b>một điểm</b> lên Google Maps. Nhấn vẽ nếu cần sơ đồ toàn thửa.</p><label class="fieldlabel" for="vertices">Danh sách X Y, một đỉnh trên mỗi dòng</label><textarea id="vertices" spellcheck="false" placeholder="1353007.69 593462.21&#10;1353015.95 593475.00&#10;1353007.68 593478.50"></textarea><div class="line-row"><button class="btn red" id="draw">▱ Vẽ sơ đồ</button><button class="btn gray" id="kml" disabled>⬇ Xuất KML</button></div><div id="geometry" style="display:none"><div class="kv"><span>Diện tích mặt phẳng</span><strong id="area">—</strong></div><div class="kv"><span>Chu vi</span><strong id="perimeter">—</strong></div><div class="chart"><svg id="plot" viewBox="0 0 480 345" role="img" aria-label="Sơ đồ thửa đất theo các đỉnh VN-2000"></svg></div><p class="micro">Sơ đồ theo tỷ lệ tọa độ, không phải ranh giới pháp lý trên Google Maps. Có thể xuất KML để mở trong Google Earth / My Maps.</p></div></div></details>
 </main>
-<div class="footer">📌 Kết quả quy đổi và diện tích chỉ mang tính tham khảo, không thay thế trích đo địa chính đã được xác nhận. Street View chỉ hoạt động tại các nơi Google có ảnh đường phố. Kết quả OCR phải đối chiếu với hồ sơ trước khi sử dụng. Google Maps chỉ ghim vị trí; sơ đồ ranh giới bên dưới là hình vẽ theo tọa độ, không chồng lên nền vệ tinh. Để xem ranh giới trên ảnh vệ tinh, dùng tệp KML với Google Earth / Google My Maps. Cần Internet để mở Google Maps và tải thư viện chuyển đổi.</div>
+<footer><div>© Agribank Chi nhánh Quỳnh Phụ · Công cụ tra cứu vị trí tham khảo</div><div class="fixedinfo"><b>Hệ cố định:</b> VN-2000, kinh tuyến trục <b>105°30′</b>, múi chiếu <b>3°</b> (theo hồ sơ Thái Bình). Đã ẩn phần thiết lập. Nếu bảng tọa độ thuộc tỉnh khác hoặc sử dụng hệ chiếu khác thì vị trí có thể sai; cần đối chiếu hồ sơ địa chính.</div></footer>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 (()=>{'use strict';
-const OLD=[
-['Lai Châu',103],['Điện Biên',103],['Sơn La',104],['Lào Cai',104.75],['Yên Bái',104.75],['Hà Giang',105.5],['Tuyên Quang',106],['Phú Thọ',104.75],['Vĩnh Phúc',105],['Cao Bằng',105.75],['Lạng Sơn',107.25],['Bắc Kạn',106.5],['Thái Nguyên',106.5],['Bắc Giang',107],['Bắc Ninh',105.5],['Quảng Ninh',107.75],['Hải Phòng',105.75],['Hải Dương',105.5],['Hưng Yên',105.5],['Hà Nội',105],['Hòa Bình',106],['Hà Nam',105],['Nam Định',105.5],['Thái Bình',105.5],['Ninh Bình',105],['Thanh Hóa',105],['Nghệ An',104.75],['Hà Tĩnh',105.5],['Quảng Bình',106],['Quảng Trị',106.25],['Thừa Thiên Huế',107],['Đà Nẵng',107.75],['Quảng Nam',107.75],['Quảng Ngãi',108],['Bình Định',108.25],['Kon Tum',107.5],['Gia Lai',108.5],['Đắk Lắk',108.5],['Đắk Nông',108.5],['Phú Yên',108.5],['Khánh Hòa',108.25],['Ninh Thuận',108.25],['Bình Thuận',108.5],['Lâm Đồng',107.75],['Bình Dương',105.75],['Bình Phước',106.25],['Đồng Nai',107.75],['Bà Rịa – Vũng Tàu',107.75],['Tây Ninh',105.5],['Long An',105.75],['Tiền Giang',105.75],['Bến Tre',105.75],['Đồng Tháp',105],['Vĩnh Long',105.5],['Trà Vinh',105.5],['An Giang',104.75],['Kiên Giang',104.5],['Cần Thơ',105],['Hậu Giang',105],['Sóc Trăng',105.5],['Bạc Liêu',105],['Cà Mau',104.5],['TP. Hồ Chí Minh',105.75]];
-const NEW=[['An Giang',104.75],['Bắc Ninh',107],['Cà Mau',104.5],['Cao Bằng',105.75],['Đắk Lắk',108.5],['Điện Biên',103],['Đồng Nai',107.75],['Đồng Tháp',105],['Gia Lai',108.25],['Hà Tĩnh',105.5],['Hưng Yên',105.5],['Khánh Hòa',108.25],['Lai Châu',104.75],['Lạng Sơn',107.25],['Lào Cai',104.75],['Lâm Đồng',107.75],['Nghệ An',104.75],['Ninh Bình',105],['Phú Thọ',104.75],['Quảng Ngãi',108],['Quảng Ninh',107.75],['Quảng Trị',106],['Sơn La',104],['Tây Ninh',105.75],['Thái Nguyên',106.5],['Thanh Hóa',105],['Cần Thơ',105],['Đà Nẵng',107.75],['Hà Nội',105],['Hải Phòng',105.75],['TP. Hồ Chí Minh',105.75],['Huế',107],['Tuyên Quang',106],['Vĩnh Long',105.5]];
-const $=id=>document.getElementById(id), el={province:$('province'),meridian:$('meridian'),zone:$('zone'),coord:$('coord'),vertices:$('vertices'),message:$('mapDescription'),map:$('map'),google:$('googleFrame'),table:$('tableBody')};
-const fmtDeg=d=>{let degree=Math.floor(d),min=Math.round((d-degree)*60);if(min===60){degree++;min=0}return `${degree}°${String(min).padStart(2,'0')}′`};
-function populate(){for(const [group,label,prefix] of [[OLD,'Địa danh trước sáp nhập (dùng theo hồ sơ cũ)','old'],[NEW,'Đơn vị hành chính sau sáp nhập 2025 (kiểm tra theo hồ sơ)','new']]){const opt=document.createElement('optgroup');opt.label=label;for(let i=0;i<group.length;i++){const [name,mer]=group[i],o=document.createElement('option');o.value=prefix+':'+i;o.textContent=`${name} — ${fmtDeg(mer)}`;opt.appendChild(o)}el.province.appendChild(opt)}}
-populate();
-const prefGet=(k)=>{try{return localStorage.getItem('vn2000_'+k)}catch(e){return null}},prefSet=(k,v)=>{try{localStorage.setItem('vn2000_'+k,v)}catch(e){}};
-if(prefGet('province')&&[...el.province.options].some(o=>o.value===prefGet('province'))){el.province.value=prefGet('province');const [grp,idx]=el.province.value.split(':');el.meridian.value=(grp==='new'?NEW:OLD)[+idx][1]}
-if(prefGet('meridian')) el.meridian.value=prefGet('meridian');if(prefGet('zone')) el.zone.value=prefGet('zone');
-if(prefGet('vertices')) el.vertices.value=prefGet('vertices');
-if(!el.meridian.value){const idx=OLD.findIndex(v=>v[0]==='Thái Bình');if(idx>=0){el.province.value='old:'+idx;el.meridian.value='105.5';}}
-
-function toast(message,error=false){const t=$('toast');t.textContent=message;t.className=error?'error':'';t.style.display='block';clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>{t.style.display='none'},5100)}
-el.province.addEventListener('change',()=>{const v=el.province.value;if(v){const [grp,index]=v.split(':');el.meridian.value=(grp==='new'?NEW:OLD)[+index][1]}else{el.meridian.value=''}prefSet('province',v);prefSet('meridian',el.meridian.value)});
-el.meridian.addEventListener('change',()=>{prefSet('meridian',el.meridian.value);if(el.province.value){const [grp,idx]=el.province.value.split(':');if(+el.meridian.value!==(grp==='new'?NEW:OLD)[+idx][1]){el.province.value='';prefSet('province','')}}});el.zone.addEventListener('change',()=>prefSet('zone',el.zone.value));el.vertices.addEventListener('change',()=>prefSet('vertices',el.vertices.value));
-let current=[],centerGPS=null,polyMode=false,lastGoogleUrl=null,currentArea=0,currentPerimeter=0;
-function getConfig(){if(!window.proj4)throw Error('Không tải được thư viện chuyển đổi tọa độ. Kiểm tra kết nối Internet rồi tải lại trang.');const cm=+el.meridian.value,zone=+el.zone.value;if(!el.meridian.value||!Number.isFinite(cm)||cm<100||cm>115){document.getElementById('province').closest('.panel').scrollIntoView({behavior:'smooth',block:'center'});throw Error('Hãy thiết lập kinh tuyến trục tại mục 3, sau đó thử lại.');}if(![3,6].includes(zone))throw Error('Múi chiếu không hợp lệ.');prefSet('meridian',el.meridian.value);prefSet('zone',el.zone.value);return {cm,k:zone===3?0.9999:0.9996}}
-function parseVals(s){return (s.match(/[-+]?\d+(?:[.,]\d+)*/g)||[]).map(raw=>{let t=raw;if(/\d[.,]\d{3}[.,]\d{3}/.test(t)){t=t.replace(/[.,](?=\d{3}(?:[.,]|$))/g,'').replace(',','.')}else{t=t.replace(',','.')}return Number.parseFloat(t)}).filter(Number.isFinite)}
-function pointFromString(str){const vals=parseVals(str);for(let i=0;i<vals.length-1;i++){if(vals[i]>700000&&vals[i]<3000000&&vals[i+1]>=100000&&vals[i+1]<1000000)return {x:vals[i],y:vals[i+1]};}throw Error('Không nhận diện được cặp X, Y. Ví dụ đúng: 1353007.69, 593462.21')}
-function projectedToGPS(p,def){const [lon,lat]=proj4(def,'WGS84',[p.y,p.x]);if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<7||lat>24||lon<101||lon>117)throw Error('Tọa độ chuyển đổi nằm ngoài khu vực dự kiến của Việt Nam. Kiểm tra X, Y, kinh tuyến trục và múi chiếu.');return {...p,lat,lon}}
-function buildDef(cfg){return `+proj=tmerc +lat_0=0 +lon_0=${cfg.cm} +k=${cfg.k} +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-191.90441429,-39.30318279,-111.45032835,-0.00928836,0.01975479,-0.00427372,0.252906278 +units=m +no_defs +type=crs`}
-function geom(points){let area2=0,perim=0;const org=points[0];for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length];const ax=a.y-org.y,ay=a.x-org.x,bx=b.y-org.y,by=b.x-org.x;area2+=ax*by-bx*ay;perim+=Math.hypot(a.x-b.x,a.y-b.y)}return{area:Math.abs(area2)/2,perimeter:perim}}
-function lengthBetween(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function drawParcelSVG(points,polygon){
- const panel=$('parcelView'),svg=$('parcelSvg');
- if(!polygon){panel.style.display='none';svg.replaceChildren();return;}
- const minE=Math.min(...points.map(p=>p.y)),maxE=Math.max(...points.map(p=>p.y));
- const minN=Math.min(...points.map(p=>p.x)),maxN=Math.max(...points.map(p=>p.x));
- const spanE=Math.max(maxE-minE,1),spanN=Math.max(maxN-minN,1);
- const scale=Math.min(580/spanE,305/spanN),cx=(minE+maxE)/2,cy=(minN+maxN)/2;
- const xy=points.map(p=>[360+(p.y-cx)*scale,225-(p.x-cy)*scale]);
- const ns='http://www.w3.org/2000/svg';
- const node=(name,attrs,text)=>{const e=document.createElementNS(ns,name);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=String(text);svg.append(e);return e};
- svg.replaceChildren();
- node('title',{},'Sơ đồ thửa đất với '+points.length+' đỉnh');
- node('polygon',{points:xy.map(v=>v.join(',')).join(' '),fill:'#e9b4bf', 'fill-opacity':'.52',stroke:'#a52035','stroke-width':'3.5','stroke-linejoin':'round'});
- const fontSize=points.length>40?9:13;
- xy.forEach(([x,y],i)=>{
-   node('circle',{cx:x,cy:y,r:points.length>40?3:6,fill:'#a52035',stroke:'#ffffff','stroke-width':'2'});
-   if(points.length>80 && i%Math.ceil(points.length/30)!==0)return;
-   const dx=x-360,dy=y-225,norm=Math.hypot(dx,dy)||1;
-   const tx=Math.max(14,Math.min(705,x+dx/norm*21)),ty=Math.max(18,Math.min(425,y+dy/norm*21));
-   node('text',{x:tx,y:ty,'text-anchor':'middle','dominant-baseline':'middle','font-size':fontSize,'font-family':'Arial, sans-serif','font-weight':'bold',fill:'#7d1930',stroke:'#fff','stroke-width':'3','paint-order':'stroke'},i+1);
- });
- node('text',{x:360,y:413,'text-anchor':'middle','font-size':'13','font-family':'Arial, sans-serif',fill:'#7d6570'},'Diện tích tính toán: '+currentArea.toLocaleString('vi-VN',{maximumFractionDigits:2})+' m²');
- panel.style.display='block';
+const $=id=>document.getElementById(id);
+const MERIDIAN=105.5, SCALE=.9999;
+const PROJ=`+proj=tmerc +lat_0=0 +lon_0=${MERIDIAN} +k=${SCALE} +x_0=500000 +y_0=0 +ellps=WGS84 +towgs84=-191.90441429,-39.30318279,-111.45032835,-0.00928836,0.01975479,-0.00427372,0.252906278 +units=m +no_defs +type=crs`;
+let points=[],chosen=null,photoFile=null,worker=null,ocrBusy=false,polygon=[];
+function notify(message,error=false){const e=$('toast');e.textContent=message;e.className=error?'err':'';e.style.display='block';clearTimeout(notify._timer);notify._timer=setTimeout(()=>e.style.display='none',5000)}
+function normNumber(s){return Number(String(s).replace(',','.'))}
+function pointFromString(s){const found=String(s).match(/[-+]?\d+(?:[.,]\d+)*/g)||[];const n=found.map(v=>normNumber(v));for(let i=0;i<n.length-1;i++)if(n[i]>700000&&n[i]<3000000&&n[i+1]>100000&&n[i+1]<1000000)return{x:n[i],y:n[i+1]};throw Error('Chưa thấy cặp X – Y hợp lệ. Ví dụ: 1353007.69, 593462.21')}
+function gps(p){if(typeof window.proj4!=='function')throw Error('Không tải được thư viện chuyển đổi VN-2000. Hãy kết nối Internet, rồi tải lại trang.');const [lon,lat]=window.proj4(PROJ,'WGS84',[p.y,p.x]);if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat<7||lat>24||lon<101||lon>117)throw Error('Tọa độ nằm ngoài khu vực dự kiến; hãy kiểm tra lại X, Y.');return{...p,lat,lon}}
+function presentPoint(p,source='manual',scroll=true){
+ const r=gps(p);chosen=r;$('lat').textContent=r.lat.toFixed(8);$('lng').textContent=r.lon.toFixed(8);
+ $('pinpoint').textContent=`📌 ${source==='photo'?'Điểm đã lấy từ ảnh':'Điểm VN-2000'}: X = ${r.x.toFixed(2)} m · Y = ${r.y.toFixed(2)} m`; $('pinpoint').style.display='block';
+ $('mapPlaceholder').style.display='none';$('map').style.display='block';$('map').src=`https://maps.google.com/maps?q=${r.lat.toFixed(8)},${r.lon.toFixed(8)}&t=k&z=19&output=embed&hl=vi`;
+ for(const id of ['openMap','openStreet','copyGps'])$(id).disabled=false;
+ const outOfRegion=r.lat<19.8||r.lat>21.6||r.lon<105.2||r.lon>107.0;
+ $('mapStatus').textContent=outOfRegion?'⚠️ Điểm hiển thị nằm ngoài khu vực Thái Bình; kiểm tra hệ tọa độ gốc.':`Đã định vị điểm X ${r.x.toFixed(2)} · Y ${r.y.toFixed(2)}`;
+ $('manual').value=`${r.x.toFixed(2)}, ${r.y.toFixed(2)}`;
+ if(outOfRegion)notify('Vị trí nằm ngoài vùng Thái Bình theo hệ cố định 105°30′. Nếu ảnh thuộc tỉnh khác, kết quả có thể sai.',true);
+ if(scroll)$('googleResult').scrollIntoView({behavior:'smooth',block:'start'});
+ return r;
 }
-function update(points,polygon){current=points;polyMode=polygon;const p=points[0];centerGPS=polygon?{lat:points.reduce((s,q)=>s+q.lat,0)/points.length,lon:points.reduce((s,q)=>s+q.lon,0)/points.length}:p;lastGoogleUrl=`https://maps.google.com/maps?q=${centerGPS.lat.toFixed(8)},${centerGPS.lon.toFixed(8)}&t=k&z=19&output=embed&hl=vi`;
-$('mapEmpty').style.display='none';el.google.style.display='block';if(el.google.src!==lastGoogleUrl)el.google.src=lastGoogleUrl;$('openGoogle').disabled=false;$('streetView').disabled=false;$('copyGPS').disabled=false;$('exportKml').disabled=false;
-$('latitude').textContent=centerGPS.lat.toFixed(8);$('longitude').textContent=centerGPS.lon.toFixed(8);if(polygon){const g=geom(points);currentArea=g.area;currentPerimeter=g.perimeter;$('area').textContent=g.area.toLocaleString('vi-VN',{maximumFractionDigits:2})+' m²';$('perimeter').textContent=g.perimeter.toLocaleString('vi-VN',{maximumFractionDigits:2})+' m';$('areaHint').textContent='Diện tích tính từ các đỉnh (mặt phẳng)';$('perimeterHint').textContent='Chu vi cạnh ranh giới';}else{currentArea=0;currentPerimeter=0;$('area').textContent='—';$('perimeter').textContent='—';$('areaHint').textContent='Cần 3 đỉnh trở lên';$('perimeterHint').textContent='Cần vẽ đa giác';}
-$('count').textContent=points.length+' điểm';el.table.replaceChildren();points.forEach((r,i)=>{const tr=document.createElement('tr');const data=[String(i+1),r.x.toFixed(2),r.y.toFixed(2),r.lat.toFixed(8),r.lon.toFixed(8),polygon?lengthBetween(r,points[(i+1)%points.length]).toFixed(2)+' m':'—'];data.forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});el.table.append(tr)});const cm=+el.meridian.value;el.message.textContent=`Đã chuyển đổi ${points.length} đỉnh • Kinh tuyến trục ${fmtDeg(cm)} • Múi ${el.zone.value}° • WGS84`;drawParcelSVG(points,polygon)}
-$('findBtn').addEventListener('click',()=>{try{const cfg=getConfig(),p=pointFromString(el.coord.value),converted=projectedToGPS(p,buildDef(cfg));update([converted],false);toast('Đã xác định vị trí GPS. Bấm “Mở Google Maps” để xem trực tiếp.')}catch(e){toast(e.message,true)}});
-el.coord.addEventListener('keydown',e=>{if(e.key==='Enter'){$('findBtn').click()}});
-$('drawBtn').addEventListener('click',()=>{try{const cfg=getConfig();const lines=el.vertices.value.trim().split(/\r?\n/).filter(l=>l.trim().length);const pts=lines.map((s,index)=>{try{return pointFromString(s)}catch(e){throw Error(`Dòng ${index+1}: ${e.message}`)}});if(pts.length>2&&Math.abs(pts[0].x-pts[pts.length-1].x)<.0001&&Math.abs(pts[0].y-pts[pts.length-1].y)<.0001)pts.pop();if(pts.length<3)throw Error('Cần ít nhất 3 đỉnh khác nhau để vẽ thửa đất.');if(pts.length>500)throw Error('Chỉ hỗ trợ tối đa 500 đỉnh mỗi lần.');const geo=geom(pts);if(geo.area<.001)throw Error('Các điểm có vẻ thẳng hàng hoặc dữ liệu chưa đúng.');const def=buildDef(cfg),converted=pts.map(p=>projectedToGPS(p,def));prefSet('vertices',el.vertices.value);update(converted,true);toast(`Đã vẽ ${pts.length} đỉnh. Diện tích mặt phẳng tham khảo ${geo.area.toLocaleString('vi-VN',{maximumFractionDigits:2})} m².`)}catch(e){toast(e.message,true)}});
-$('clearBtn').addEventListener('click',()=>{current=[];polyMode=false;centerGPS=null;lastGoogleUrl=null;el.google.removeAttribute('src');el.google.style.display='none';$('parcelView').style.display='none';$('parcelSvg').replaceChildren();['openGoogle','streetView','copyGPS','exportKml'].forEach(id=>$(id).disabled=true);['latitude','longitude','area','perimeter'].forEach(id=>$(id).textContent='—');$('count').textContent='0 điểm';el.message.textContent='Chưa có tọa độ được tra cứu.';el.table.innerHTML='<tr><td class="emptyresult" colspan="6">Chưa có dữ liệu.</td></tr>';$('mapEmpty').style.display='grid';toast('Đã xóa điểm ghim và hình ranh giới.');});
-$('openGoogle').addEventListener('click',()=>{if(!centerGPS)return;window.open(`https://www.google.com/maps/search/?api=1&query=${centerGPS.lat.toFixed(8)}%2C${centerGPS.lon.toFixed(8)}`,'_blank','noopener,noreferrer')});
-$('streetView').addEventListener('click',()=>{if(!centerGPS)return;const pos=encodeURIComponent(centerGPS.lat.toFixed(8)+','+centerGPS.lon.toFixed(8));window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${pos}`,'_blank','noopener,noreferrer')});
-$('copyGPS').addEventListener('click',async()=>{if(!centerGPS)return;const txt=`${centerGPS.lat.toFixed(8)}, ${centerGPS.lon.toFixed(8)}`;try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(txt);else{const t=document.createElement('textarea');t.value=txt;document.body.append(t);t.select();document.execCommand('copy');t.remove()}toast('Đã sao chép GPS: '+txt)}catch(e){toast('Không sao chép tự động được. Tọa độ: '+txt,true)}});
-const xmlEsc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-$('exportKml').addEventListener('click',()=>{if(!current.length)return;const coords=current.map(p=>`${p.lon.toFixed(9)},${p.lat.toFixed(9)},0`),placemarks=polyMode?`<Placemark><name>Ranh giới thửa đất</name><description>${xmlEsc('Diện tích tọa độ phẳng: '+currentArea.toFixed(2)+' m2')}</description><Style><LineStyle><color>ff2617ed</color><width>3</width></LineStyle><PolyStyle><color>552617ed</color></PolyStyle></Style><Polygon><tessellate>1</tessellate><outerBoundaryIs><LinearRing><coordinates>${coords.concat(coords[0]).join(' ')}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>`:`<Placemark><name>Vị trí tọa độ VN-2000</name><Point><coordinates>${coords[0]}</coordinates></Point></Placemark>`;const kml=`<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Thửa đất VN-2000</name>${placemarks}</Document></kml>`;const url=URL.createObjectURL(new Blob([kml],{type:'application/vnd.google-earth.kml+xml;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=polyMode?'ranh_gioi_thua_dat_VN2000.kml':'vi_tri_toa_do_VN2000.kml';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Đã xuất KML. Có thể nhập vào Google My Maps hoặc mở bằng Google Earth.')});
-
-// Camera + OCR integration. Do not auto-navigate on a suspicious measurement.
-const imageInput=$('cameraInput'),galleryInput=$('galleryInput');
-let lastPhotoFile=null,ocrWorker=null,ocrBusy=false;
-function ocrProgress(percent,message){
- const wrap=$('ocrProgressWrap');wrap.style.display='block';
- $('ocrProgress').value=Math.max(0,Math.min(100,Math.round(percent)));
- $('ocrStatus').textContent=message;
-}
-function digitsFromOCR(value){
- return value.replace(/[OoQ]/g,'0').replace(/[Ss$]/g,'5').replace(/[Il|!]/g,'1').replace(/[Bb]/g,'8').replace(/[Zz]/g,'2').replace(/[^0-9]/g,'');
-}
-function normalizeOCRRow(row){
- // Fix OCR-confused characters only when adjacent to numerals.
- return row.replace(/(\d)[OoQ]/g,'$10').replace(/(\d)[sS$]/g,'$15')
-  .replace(/(\d)[Il!]/g,'$11').replace(/(\d)[Bb]/g,'$18');
-}
-function pointFromOCRLine(line){
- // A six/seven-digit coordinate may have an omitted decimal separator.
- // Stop at the first coordinate pair; row numbers and edge lengths are ignored.
- const clean=normalizeOCRRow(line).replace(/([\d])\s*[,.]\s*([\d])/g,'$1.$2');
- const rx=/[12][0-9OoQIlSs$Bb]{6,9}(?:[.,]\d{1,2}|\s+\d{1,2})?/g;
- let match;
- while((match=rx.exec(clean))){
-  const rawX=match[0],xparts=rawX.match(/^([12][0-9OoQIlSs$Bb]{6,9})(?:[.,\s]+(\d{1,2}))?$/);
-  if(!xparts)continue;
-  let xint=digitsFromOCR(xparts[1]),xdec=xparts[2]||'';
-  if(xint.length===9 && !xdec){xdec=xint.slice(-2);xint=xint.slice(0,-2);}
-  else if(xint.length===8 && !xdec){xdec=xint.slice(-1);xint=xint.slice(0,-1);}
-  if(xint.length!==7)continue;
-  const x=Number(xint+'.'+(xdec||'0'));
-  if(x<700000||x>3000000)continue;
-  const tail=clean.slice(match.index+match[0].length);
-  const ypattern=/[0-9OoQIlSs$Bb]{6,9}(?:[.,]\d{1,2}|\s+\d{1,2})?/g;
-  let ym,found=null;
-  while((ym=ypattern.exec(tail))){
-   const yp=ym[0].match(/^([0-9OoQIlSs$Bb]{6,9})(?:[.,\s]+(\d{1,2}))?$/);
-   if(!yp)continue;
-   let yd=digitsFromOCR(yp[1]),fraction=yp[2]||'';
-   if(yd.length===8&&!fraction){fraction=yd.slice(-2);yd=yd.slice(0,-2);}
-   else if(yd.length===7&&!fraction){fraction=yd.slice(-1);yd=yd.slice(0,-1);}
-   else if(yd.length===7&&fraction&&yd.startsWith('5')){yd=yd.slice(1);}
-   else if(yd.length===9&&!fraction){fraction=yd.slice(-2);yd=yd.slice(0,-2);if(yd.length===7&&yd.startsWith('5'))yd=yd.slice(1);}
-   if(yd.length===6){const y=Number(yd+'.'+(fraction||'0'));if(y>=100000&&y<1000000){found={x,y};break;}}
+function googlePoint(){if(!chosen)return null;return `${chosen.lat.toFixed(8)},${chosen.lon.toFixed(8)}`}
+$('manualGo').addEventListener('click',()=>{try{presentPoint(pointFromString($('manual').value))}catch(e){notify(e.message,true)}});
+$('manual').addEventListener('keydown',e=>{if(e.key==='Enter')$('manualGo').click()});
+$('openMap').addEventListener('click',()=>{const p=googlePoint();if(p)window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p)}`,'_blank','noopener,noreferrer')});
+$('openStreet').addEventListener('click',()=>{const p=googlePoint();if(p)window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${encodeURIComponent(p)}`,'_blank','noopener,noreferrer')});
+$('copyGps').addEventListener('click',async()=>{const p=googlePoint();if(!p)return;try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(p);else{let e=document.createElement('textarea');e.value=p;document.body.append(e);e.select();document.execCommand('copy');e.remove()}notify('Đã sao chép: '+p)}catch(e){notify('Hãy sao chép thủ công: '+p,true)}});
+// Read candidate X Y pairs from OCR; allow OCR to omit a decimal point.
+function ocrDigits(s){return String(s).replace(/[OoQ]/g,'0').replace(/[Ss$]/g,'5').replace(/[Il|!]/g,'1').replace(/[Bb]/g,'8').replace(/[Zz]/g,'2').replace(/[^0-9]/g,'')}
+function rowPoint(row){
+ const s=row.replace(/(\d)[OoQ]/g,'$10').replace(/(\d)[sS$]/g,'$15').replace(/(\d)[Il!]/g,'$11').replace(/(\d)[Bb]/g,'$18').replace(/(\d)\s*[,.]\s*(\d)/g,'$1.$2');
+ const xs=/[12][0-9OoQIlSs$Bb]{6,9}(?:[.,]\d{1,2}|\s+\d{1,2})?/g;let m;
+ while((m=xs.exec(s))){let r=m[0].match(/^([12][0-9OoQIlSs$Bb]{6,9})(?:[.,\s]+(\d{1,2}))?$/);if(!r)continue;let xi=ocrDigits(r[1]),xd=r[2]||'';
+  if(xi.length===9&&!xd){xd=xi.slice(-2);xi=xi.slice(0,-2)}else if(xi.length===8&&!xd){xd=xi.slice(-1);xi=xi.slice(0,-1)}
+  if(xi.length!==7)continue;const x=Number(xi+'.'+(xd||'0'));if(x<700000||x>3000000)continue;
+  const ys=/[0-9OoQIlSs$Bb]{6,9}(?:[.,]\d{1,2}|\s+\d{1,2})?/g;let z;const tail=s.slice(m.index+m[0].length);
+  while((z=ys.exec(tail))){const rr=z[0].match(/^([0-9OoQIlSs$Bb]{6,9})(?:[.,\s]+(\d{1,2}))?$/);if(!rr)continue;let yi=ocrDigits(rr[1]),yd=rr[2]||'';
+   if(yi.length===8&&!yd){yd=yi.slice(-2);yi=yi.slice(0,-2)}else if(yi.length===7&&!yd){yd=yi.slice(-1);yi=yi.slice(0,-1)}else if(yi.length===7&&yd&&yi.startsWith('5'))yi=yi.slice(1);else if(yi.length===9&&!yd){yd=yi.slice(-2);yi=yi.slice(0,-2);if(yi.length===7&&yi.startsWith('5'))yi=yi.slice(1)}
+   if(yi.length===6){const y=Number(yi+'.'+(yd||'0'));if(y>100000&&y<1000000)return{x,y}}
   }
-  if(found)return found;
  }
  return null;
 }
-function pointsFromOCRText(text){
- const rows=text.split(/[\r\n]+/).map(s=>s.trim()).filter(Boolean);
- const pts=[];let uncertain=0,corrections=[];
- for(const row of rows){
-  const pt=pointFromOCRLine(row);if(!pt)continue;
-  if(pts.some(p=>Math.abs(p.x-pt.x)<.005&&Math.abs(p.y-pt.y)<.005))continue;
-  pts.push(pt);
- }
- // Low-resolution photographs occasionally mistake one digit (e.g. 3 as 9).
- // Attempt a single-digit repair ONLY when several other vertices form a tight
- // cluster and the corrected value is unique. Always disclose every guess.
- if(pts.length>=4){
-  const vals=arr=>arr.slice().sort((a,b)=>a-b);
-  const median=arr=>{const s=vals(arr);return s[Math.floor(s.length/2)]};
-  for(let i=0;i<pts.length;i++){
-   const others=pts.filter((_,j)=>i!==j);
-   const range=arr=>Math.max(...arr)-Math.min(...arr);
-   const xs=others.map(p=>p.x),ys=others.map(p=>p.y);
-   if(range(xs)>120||range(ys)>120)continue;
-   const mx=median(xs),my=median(ys),src=pts[i];
-   if(Math.hypot(src.x-mx,src.y-my)<400)continue;
-   let poss=[];
-   for(const axis of ['x','y']){
-    const rounded=Math.floor(src[axis]),digits=String(rounded),dec=src[axis]-rounded;
-    const target=axis==='x'?mx:my;
-    for(let pos=1;pos<digits.length;pos++)for(let d=0;d<=9;d++){
-     if(String(d)===digits[pos])continue;
-     const num=Number(digits.slice(0,pos)+d+digits.slice(pos+1))+dec;
-     const candidate={...src,[axis]:num};
-     const distance=Math.hypot(candidate.x-mx,candidate.y-my);
-     if(distance<65&&Math.abs(num-target)<65)poss.push({candidate,distance});
-    }
-   }
-   poss.sort((a,b)=>a.distance-b.distance);
-   if(poss.length===1){
-    const before=src.x.toFixed(2)+' / '+src.y.toFixed(2),after=poss[0].candidate;
-    corrections.push('Đỉnh '+(i+1)+': '+before+' → '+after.x.toFixed(2)+' / '+after.y.toFixed(2));
-    pts[i]=after;
-   }
-  }
- }
- if(pts.length>=3){
-  const xs=pts.map(p=>p.x).sort((a,b)=>a-b),ys=pts.map(p=>p.y).sort((a,b)=>a-b);
-  const median=a=>a[Math.floor(a.length/2)],mx=median(xs),my=median(ys);
-  uncertain=pts.filter(p=>Math.hypot(p.x-mx,p.y-my)>Math.max(150,6*pts.length)).length;
- }
- return {pts,uncertain,corrections};
+function parseOCR(s){const out=[];for(const line of s.split(/[\r\n]+/)){const p=rowPoint(line.trim());if(p&&!out.some(q=>Math.abs(p.x-q.x)<.005&&Math.abs(p.y-q.y)<.005))out.push(p)}return out.slice(0,120)}
+function formatPts(arr){return arr.map(p=>p.x.toFixed(2)+' '+p.y.toFixed(2)).join('\n')}
+function parseMultiline(text){let res=[];for(const [i,line] of text.split(/\r?\n/).entries()){if(!line.trim())continue;try{res.push(pointFromString(line))}catch(e){throw Error('Dòng '+(i+1)+' không có cặp X, Y hợp lệ')}}return res}
+// Select a real detected point near the median of the cluster (rather than inventing a corrected X/Y).
+function bestIndex(arr){if(arr.length<3)return 0;const sorted=a=>a.slice().sort((a,b)=>a-b);const xx=sorted(arr.map(p=>p.x)),yy=sorted(arr.map(p=>p.y));const mx=xx[Math.floor(xx.length/2)],my=yy[Math.floor(yy.length/2)];let index=0,best=Infinity;arr.forEach((p,i)=>{const d=Math.hypot(p.x-mx,p.y-my);if(d<best){best=d;index=i}});return index}
+function setDetected(arr,auto=true){if(!arr.length)throw Error('Không đọc được cặp X – Y. Hãy chụp gần, rõ nét hơn hoặc nhập thủ công.');points=arr;$('ocrTools').style.display='block';$('ocrCount').textContent=`✅ Đã đọc ${arr.length} điểm — tự chọn 1 điểm để hiển thị`;
+ const pick=$('pointPick');pick.replaceChildren();arr.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`Điểm ${i+1}: ${p.x.toFixed(2)} · ${p.y.toFixed(2)}`;pick.append(o)});
+ const index=bestIndex(arr);pick.value=String(index);$('ocrText').value=formatPts(arr);$('vertices').value=formatPts(arr);
+ const highlight=arr.length>=3?arr.filter(p=>Math.hypot(p.x-arr[index].x,p.y-arr[index].y)>180).length:0;
+ let message=`Đã tìm được ${arr.length} điểm. Hệ thống dùng điểm ${index+1} để định vị. Bạn có thể đổi sang điểm khác.`;
+ if(highlight)message+=` Lưu ý: có ${highlight} điểm nằm xa nhóm còn lại, cần đối chiếu ảnh.`;
+ showNote(message,highlight===0);
+ if(auto)presentPoint(arr[index],'photo',true);
 }
-function fmtPoints(pts){return pts.map(p=>p.x.toFixed(2)+' '+p.y.toFixed(2)).join('\n');}
-function parseEditedOCR(){
- const lines=$('ocrExtracted').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- let pts=[];
- for(let i=0;i<lines.length;i++){
-  try{pts.push(pointFromString(lines[i]));}catch(e){throw Error('Dòng '+(i+1)+' không đúng định dạng tọa độ.');}
- }
- if(pts.length>2&&Math.hypot(pts[0].x-pts.at(-1).x,pts[0].y-pts.at(-1).y)<0.01)pts.pop();
- if(!pts.length)throw Error('Không có tọa độ hợp lệ trong vùng kiểm tra.');
- if(pts.length>500)throw Error('Số đỉnh quá lớn.');
- return pts;
-}
-function applyOCRPoints(){
- try{
-  const pts=parseEditedOCR();
-  el.coord.value=pts[0].x.toFixed(2)+', '+pts[0].y.toFixed(2);
-  el.vertices.value=fmtPoints(pts);
-  prefSet('vertices',el.vertices.value);
-  if(pts.length>=3){$('drawBtn').click();}
-  else{$('findBtn').click();}
-  $('mapDescription').scrollIntoView({behavior:'smooth',block:'nearest'});
- }catch(e){toast(e.message,true);$('ocrNotice').textContent=e.message;}
-}
-async function ensureTesseract(){
- if(window.Tesseract?.createWorker)return;
- for(const src of [
-  'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js'
- ]){
-  try{await new Promise((resolve,reject)=>{const tag=document.createElement('script');tag.src=src;tag.async=true;tag.onload=resolve;tag.onerror=()=>{tag.remove();reject(Error('Không tải được thư viện OCR'))};document.head.append(tag)});if(window.Tesseract?.createWorker)return;}catch(e){}
- }
- throw Error('Không tải được bộ đọc ảnh. Vui lòng kiểm tra Internet, hoặc mở file trên trình duyệt Chrome/Edge và thử lại.');
-}
-function prepareImage(file){
- return new Promise((resolve,reject)=>{
-  const url=URL.createObjectURL(file),img=new Image();
-  img.onload=()=>{
-   const origW=img.naturalWidth,origH=img.naturalHeight;
-   if(!origW||!origH){URL.revokeObjectURL(url);reject(Error('Ảnh không hợp lệ'));return;}
-   let targetW=Math.min(2600,Math.max(1400,origW)),targetH=Math.round(targetW*origH/origW);
-   if(targetH>3500){const r=3500/targetH;targetW=Math.round(targetW*r);targetH=3500;}
-   const canvas=document.createElement('canvas');canvas.width=targetW;canvas.height=targetH;
-   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingQuality='high';
-   ctx.drawImage(img,0,0,targetW,targetH);
-   const data=ctx.getImageData(0,0,targetW,targetH),px=data.data;
-   // Monochrome+contrast aids digit recognition on blurry documents.
-   for(let i=0;i<px.length;i+=4){const gray=.299*px[i]+.587*px[i+1]+.114*px[i+2];const out=Math.min(255,Math.max(0,(gray-125)*1.45+135));px[i]=px[i+1]=px[i+2]=out;}
-   ctx.putImageData(data,0,0);
-   URL.revokeObjectURL(url);
-   resolve(canvas);
-  };
-  img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Không mở được ảnh. Hãy chọn JPG, PNG hoặc ảnh tương thích khác.'));};
-  img.src=url;
- });
-}
-async function recognizePhoto(file){
- if(ocrBusy)return;
- ocrBusy=true;lastPhotoFile=file;
- $('ocrApply').disabled=true;$('ocrRetry').disabled=true;$('ocrReview').style.display='none';
- if($('ocrPreview').dataset.url)URL.revokeObjectURL($('ocrPreview').dataset.url);
- const prevURL=URL.createObjectURL(file);$('ocrPreview').src=prevURL;$('ocrPreview').dataset.url=prevURL;$('ocrPreview').style.display='block';
- try{
-  ocrProgress(3,'Đang chuẩn bị ảnh để nhận dạng…');
-  const canvas=await prepareImage(file);
-  ocrProgress(8,'Đang tải bộ nhận dạng chữ số. Lần đầu có thể mất 10–40 giây…');
-  await ensureTesseract();
-  if(!ocrWorker){
-   ocrWorker=await Tesseract.createWorker('eng',1,{
-    logger:m=>{
-     if(m.status==='recognizing text')ocrProgress(25+Math.round((m.progress||0)*70),'Đang đọc bảng tọa độ… '+Math.round((m.progress||0)*100)+'%');
-     else if(m.status==='loading language traineddata')ocrProgress(13,'Đang tải dữ liệu nhận dạng tiếng Anh/chữ số…');
-     else if(m.status==='initializing api')ocrProgress(22,'Đang khởi tạo bộ đọc ảnh…');
-    }
-   });
-   try{await ocrWorker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK||6, tessedit_char_whitelist:'0123456789.,|SsOolIB$ -'});}catch(e){}
-  }
-  ocrProgress(23,'Đang đọc chữ số trên ảnh…');
-  const ret=await ocrWorker.recognize(canvas);
-  let parsed=pointsFromOCRText(ret.data.text||'');
-  ocrProgress(100,'Đã đọc xong ảnh.');
-  $('ocrReview').style.display='block';
-  $('ocrExtracted').value=fmtPoints(parsed.pts);
-  $('ocrApply').disabled=parsed.pts.length===0;
-  $('ocrReviewTitle').textContent='📋 Đã nhận dạng '+parsed.pts.length+' đỉnh từ ảnh';
-  if(parsed.pts.length===0){
-   $('ocrNotice').textContent='Chưa nhận được cặp tọa độ X–Y rõ ràng. Hãy chụp thẳng, gần và đủ sáng; có thể nhập số vào ô bên dưới rồi bấm Xem.';
-   toast('Không nhận được tọa độ. Vui lòng chụp gần bảng hơn.',true);
-  }else if(parsed.uncertain>0){
-   $('ocrNotice').textContent='⚠️ Có '+parsed.uncertain+' điểm lệch bất thường so với các điểm còn lại. Hãy đối chiếu ảnh, sửa số trước khi bấm Xem tọa độ đã đọc.';
-   toast('OCR đã đọc được bảng, nhưng có điểm bất thường cần kiểm tra lại.',true);
-  }else if(parsed.pts.length===1){
-   $('ocrNotice').textContent='Đã tìm được một điểm. Vị trí sẽ được ghim tự động. Bạn có thể chỉnh tọa độ rồi bấm Xem lại.';
-   applyOCRPoints();
-  }else if(parsed.pts.length===2){
-   $('ocrNotice').textContent='Mới thấy 2 đỉnh; sẽ ghim đỉnh đầu tiên. Chụp rõ đầy đủ bảng để vẽ ranh giới.';
-   applyOCRPoints();
-  }else{
-   $('ocrNotice').textContent=(parsed.corrections.length?'⚠️ Đã suy đoán sửa '+parsed.corrections.length+' lỗi OCR, kiểm tra ảnh gốc:\n'+parsed.corrections.join('\n')+'\n':'')+'Đã tự động tra cứu và vẽ ranh giới tham khảo. Hãy kiểm tra từng số với ảnh gốc.';
-   applyOCRPoints();
-  }
- }catch(e){
-  ocrProgress(0,'Không đọc được ảnh: '+e.message);
-  $('ocrReview').style.display='block';
-  $('ocrReviewTitle').textContent='Có thể nhập/sửa tọa độ tại đây';
-  $('ocrNotice').textContent='Thử lại bằng Chrome/Edge có Internet. Nếu máy không hỗ trợ nhận dạng, bạn vẫn có thể nhập tọa độ thủ công.';
-  toast('Không thể nhận dạng ảnh: '+e.message,true);
- }finally{ocrBusy=false;$('ocrRetry').disabled=false;$('ocrApply').disabled=!$('ocrExtracted').value.trim();}
-}
-[imageInput,galleryInput].forEach(input=>input.addEventListener('change',e=>{
- const f=e.target.files?.[0];if(f){recognizePhoto(f);}input.value='';
-}));
-$('ocrApply').addEventListener('click',applyOCRPoints);
-$('ocrRetry').addEventListener('click',()=>{if(lastPhotoFile)recognizePhoto(lastPhotoFile)});
-
+function showNote(s,good=false){const e=$('notice');e.textContent=s;e.className='notice'+(good?' good':'');e.style.display='block'}
+$('pickGo').addEventListener('click',()=>{try{const p=points[Number($('pointPick').value)];if(!p)throw Error('Hãy chọn một điểm hợp lệ');presentPoint(p,'photo')}catch(e){notify(e.message,true)}});
+$('pointPick').addEventListener('change',()=>{$('pickGo').click()});
+$('fixOcr').addEventListener('click',()=>{try{setDetected(parseMultiline($('ocrText').value),true)}catch(e){showNote(e.message);notify(e.message,true)}});
+function setProgress(n,text){$('busy').style.display='block';$('progress').value=Math.max(0,Math.min(100,Math.round(n)));$('progressNumber').textContent=Math.round(n)+'%';$('statusText').textContent=text;}
+async function loadOCR(){if(window.Tesseract?.createWorker)return;for(const url of ['https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js','https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js']){try{await new Promise((ok,fail)=>{const script=document.createElement('script');script.src=url;script.async=true;script.onload=ok;script.onerror=()=>{script.remove();fail(Error('Không tải được thư viện'))};document.head.appendChild(script)});if(window.Tesseract?.createWorker)return}catch(e){}}throw Error('Không thể tải OCR. Kiểm tra Internet và thử lại bằng Chrome hoặc Safari.')}
+function canvasOf(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{try{let w=Math.min(2400,Math.max(1500,img.naturalWidth)),h=Math.round(w*img.naturalHeight/img.naturalWidth);if(h>3300){w=Math.round(w*3300/h);h=3300}const cv=document.createElement('canvas');cv.width=w;cv.height=h;const ctx=cv.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,w,h);const data=ctx.getImageData(0,0,w,h);for(let i=0;i<data.data.length;i+=4){const p=data.data,l=.299*p[i]+.587*p[i+1]+.114*p[i+2],v=Math.max(0,Math.min(255,(l-125)*1.48+137));p[i]=p[i+1]=p[i+2]=v}ctx.putImageData(data,0,0);resolve(cv)}catch(e){reject(e)}finally{URL.revokeObjectURL(url)}};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Không mở được ảnh. Dùng JPG hoặc PNG.'))};img.src=url})}
+async function readPhoto(file){if(ocrBusy)return;ocrBusy=true;photoFile=file;$('retry').disabled=true;$('ocrTools').style.display='none';$('notice').style.display='none';
+ if($('preview').dataset.url)URL.revokeObjectURL($('preview').dataset.url);const src=URL.createObjectURL(file);$('preview').dataset.url=src;$('preview').src=src;$('preview').style.display='block';
+ try{$('busyLabel').textContent='Đang đọc tọa độ…';setProgress(3,'Đang xử lý ảnh…');const cv=await canvasOf(file);setProgress(9,'Đang tải bộ nhận dạng ảnh (lần đầu có thể mất 10–40 giây)…');await loadOCR();
+  if(!worker){worker=await Tesseract.createWorker('eng',1,{logger:e=>{if(e.status==='recognizing text')setProgress(25+(e.progress||0)*70,'Đang đọc bảng tọa độ…');else if(e.status==='loading language traineddata')setProgress(13,'Đang tải dữ liệu chữ số…')}});try{await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SINGLE_BLOCK||6,tessedit_char_whitelist:'0123456789.,|SsOolIB$ -'})}catch(e){}}
+  setProgress(25,'Đang nhận dạng các điểm X – Y…');const res=await worker.recognize(cv);const found=parseOCR(res.data.text||'');setProgress(100,'Đã đọc ảnh xong.');$('busyLabel').textContent='✅ Hoàn tất nhận dạng ảnh';setDetected(found,true);
+ }catch(e){setProgress(0,'Không đọc được ảnh.');showNote('⚠️ '+e.message+' Bạn có thể chụp lại hoặc nhập cặp X – Y ở bên dưới.');notify(e.message,true)}finally{ocrBusy=false;$('retry').disabled=false}}
+for(const id of ['camera','gallery'])$(id).addEventListener('change',e=>{const f=e.target.files?.[0];e.target.value='';if(f)readPhoto(f)});
+$('retry').addEventListener('click',()=>{if(photoFile)readPhoto(photoFile)});
+function geom(p){const zero=p[0];let area=0,length=0;for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];area+=(a.y-zero.y)*(b.x-zero.x)-(b.y-zero.y)*(a.x-zero.x);length+=Math.hypot(a.x-b.x,a.y-b.y)}return{area:Math.abs(area)/2,length}}
+function chart(p,g){const svg=$('plot');svg.replaceChildren();const ns='http://www.w3.org/2000/svg';function n(tag,a,text){const e=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(a))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=String(text);svg.appendChild(e)}let minX=Math.min(...p.map(x=>x.y)),maxX=Math.max(...p.map(x=>x.y)),minY=Math.min(...p.map(x=>x.x)),maxY=Math.max(...p.map(x=>x.x));let cx=(minX+maxX)/2,cy=(minY+maxY)/2,scale=Math.min(375/Math.max(1,maxX-minX),246/Math.max(1,maxY-minY));const xy=p.map(q=>[240+(q.y-cx)*scale,167-(q.x-cy)*scale]);n('polygon',{points:xy.map(a=>a.join(',')).join(' '),fill:'#edb7c2','fill-opacity':'.65',stroke:'#982037','stroke-width':'2.5'});xy.forEach(([x,y],i)=>{n('circle',{cx:x,cy:y,r:4,fill:'#982037',stroke:'white','stroke-width':1});if(p.length<30)n('text',{x:x+(x>240?11:-11),y:y+(y>167?12:-12),'text-anchor':'middle','font-family':'Arial,sans-serif','font-size':11,'font-weight':700,fill:'#782036'},i+1)});n('text',{x:240,y:330,'text-anchor':'middle','font-family':'Arial,sans-serif','font-size':12,fill:'#7a4657'},g.area.toLocaleString('vi-VN',{maximumFractionDigits:2})+' m²')}
+$('draw').addEventListener('click',()=>{try{let p=parseMultiline($('vertices').value);if(p.length>2&&Math.hypot(p[0].x-p.at(-1).x,p[0].y-p.at(-1).y)<.01)p.pop();if(p.length<3)throw Error('Cần ít nhất 3 điểm để vẽ ranh giới.');if(p.length>150)throw Error('Chỉ hỗ trợ tối đa 150 đỉnh.');const g=geom(p);if(g.area<.001)throw Error('Các điểm không tạo thành thửa đất hợp lệ.');polygon=p;$('area').textContent=g.area.toLocaleString('vi-VN',{maximumFractionDigits:2})+' m²';$('perimeter').textContent=g.length.toLocaleString('vi-VN',{maximumFractionDigits:2})+' m';chart(p,g);$('geometry').style.display='block';$('kml').disabled=false;notify('Đã vẽ sơ đồ '+p.length+' đỉnh và tính diện tích tham khảo.')}catch(e){notify(e.message,true)}});
+$('kml').addEventListener('click',()=>{if(polygon.length<3)return;try{const points=polygon.map(gps),coordinates=points.map(p=>`${p.lon.toFixed(9)},${p.lat.toFixed(9)},0`);coordinates.push(coordinates[0]);const xml=`<?xml version="1.0" encoding="utf-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Ranh gioi thua dat VN-2000</name><Placemark><name>Thua dat</name><Style><LineStyle><color>ff311991</color><width>3</width></LineStyle><PolyStyle><color>55311991</color></PolyStyle></Style><Polygon><outerBoundaryIs><LinearRing><coordinates>${coordinates.join(' ')}</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>`;const uri=URL.createObjectURL(new Blob([xml],{type:'application/vnd.google-earth.kml+xml'}));const a=document.createElement('a');a.href=uri;a.download='ranh_gioi_thua_dat_VN2000.kml';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(uri),1500)}catch(e){notify(e.message,true)}});
 })();
 </script>
-</body></html>
+</body>
+</html>
